@@ -1,0 +1,139 @@
+{% extends "garden/base.html" %}
+{% block title %}GardenApp — Know When to Grow{% endblock %}
+
+{% block extra_css %}
+.hero {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.3rem;
+}
+.hero .subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+.zip-form {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+.zip-form input {
+    width: 160px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+.zone-result {
+    max-width: 450px;
+    margin: 0 auto;
+    text-align: left;
+}
+.zone-result h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+.zone-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.zone-stat {
+    text-align: center;
+    padding: 1rem;
+    background: var(--green-pale);
+    border-radius: 8px;
+}
+.zone-stat .label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.zone-stat .value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--green-dark);
+}
+.zone-actions {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+}
+.not-found {
+    color: var(--danger);
+    text-align: center;
+    margin-top: 1rem;
+}
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>🌱 Know When to Grow</h1>
+    <p class="subtitle">Enter your zip code to get personalized planting dates for your area.</p>
+
+    <div class="zip-form">
+        <input type="text" id="zip-input" placeholder="Enter zip code" maxlength="5"
+               value="{{ zip_code|default:'' }}" autofocus>
+        <button class="btn" onclick="lookupZone()">Find My Zone</button>
+    </div>
+
+    <div id="zone-result">
+    {% if frost_data %}
+        <div class="zone-result card">
+            <h2>Zone {{ zone_str }}</h2>
+            <div class="zone-stats">
+                <div class="zone-stat">
+                    <div class="label">Last Spring Frost</div>
+                    <div class="value">{{ frost_data.last_frost_for_year|date:"M j" }}</div>
+                </div>
+                <div class="zone-stat">
+                    <div class="label">First Fall Frost</div>
+                    <div class="value">{{ frost_data.first_frost_for_year|date:"M j" }}</div>
+                </div>
+                <div class="zone-stat">
+                    <div class="label">Growing Season</div>
+                    <div class="value">{{ frost_data.growing_season_days }} days</div>
+                </div>
+                <div class="zone-stat">
+                    <div class="label">Zip Code</div>
+                    <div class="value">{{ zip_code }}</div>
+                </div>
+            </div>
+            <div class="zone-actions">
+                <a href="{% url 'garden:plant_list' %}?zip={{ zip_code }}" class="btn">Browse Plants</a>
+                <a href="{% url 'garden:my_garden' %}?zip={{ zip_code }}" class="btn btn-outline">My Garden</a>
+            </div>
+        </div>
+    {% elif zone_error %}
+        <p class="not-found">{{ zone_error }}</p>
+    {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function lookupZone() {
+    const zip = document.getElementById('zip-input').value.trim();
+    if (zip.length !== 5) return;
+    localStorage.setItem('garden_zip', zip);
+    window.location.href = '/?zip=' + zip;
+}
+
+document.getElementById('zip-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') lookupZone();
+});
+
+// Restore zip from localStorage if not in URL
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('zip-input');
+    if (!input.value) {
+        const stored = localStorage.getItem('garden_zip');
+        if (stored) input.value = stored;
+    }
+});
+</script>
+{% endblock %}

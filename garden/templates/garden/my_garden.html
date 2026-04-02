@@ -1,0 +1,459 @@
+{% extends "garden/base.html" %}
+{% block title %}My Garden — GardenApp{% endblock %}
+
+{% block extra_css %}
+.garden-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: end;
+}
+.garden-controls .field { 
+    flex: 1; min-width: 200px;
+ }
+.garden-controls .field label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 0.3rem;
+}
+.search-wrapper { 
+    position: relative;
+ }
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid var(--green-mid);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+}
+.search-results.active { 
+    display: block;
+ }
+.search-result-item {
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+.search-result-item:hover { 
+    background: var(--green-pale);
+ }
+.search-result-item .tag { 
+    font-size: 0.7rem;
+ }
+.search-result-item.already-added {
+    opacity: 0.5;
+    cursor: default;
+}
+.search-result-item.already-added::after {
+    content: '✓ Added';
+    font-size: 0.75rem;
+    color: var(--green-mid);
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.selected-plants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    min-height: 40px;
+}
+.plant-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--green-pale);
+    border: 1px solid var(--green-light);
+    padding: 0.3rem 0.5rem 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--green-dark);
+}
+.plant-chip .remove-btn {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 0.2rem;
+    border-radius: 50%;
+}
+.plant-chip .remove-btn:hover {
+    color: var(--danger);
+    background: rgba(198,40,40,0.1);
+}
+.empty-garden {
+    color: var(--text-light);
+    font-style: italic;
+    padding: 0.5rem 0;
+}
+
+.timeline { 
+    margin-top: 1rem;
+ }
+.timeline-plant {
+    margin-bottom: 1rem;
+    padding: 1rem 1.5rem;
+}
+.timeline-plant .plant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+.timeline-plant .plant-header h3 { 
+    margin: 0;
+ }
+.remove-from-calendar {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    cursor: pointer;
+    background: none;
+    border: 1px solid #ddd;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+}
+.remove-from-calendar:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.warnings { 
+    margin-top: 2rem;
+ }
+.warning-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+}
+.warning-companion { 
+    background: #e8f5e9;
+ }
+.warning-antagonist { 
+    background: #ffebee;
+ }
+
+.garden-actions {
+    display: flex;
+    gap: 0.8rem;
+}
+.btn-danger {
+    background: transparent;
+    border: 2px solid var(--danger);
+    color: var(--danger);
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+.btn-danger:hover { 
+    background: var(--danger); color: white;
+ }
+
+.plant-count {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 0.3rem;
+}
+{% endblock %}
+
+{% block content %}
+<h1>My Garden</h1>
+<p class="subtitle">Add plants to build your personalized growing calendar.</p>
+
+<div class="card">
+    <div class="garden-controls">
+        <div class="field">
+            <label for="zip-input">Zip Code</label>
+            <input type="text" id="zip-input" maxlength="5" placeholder="e.g. 07920">
+        </div>
+        <div class="field">
+            <label for="plant-search">Add a Plant</label>
+            <div class="search-wrapper">
+                <input type="search" id="plant-search" placeholder="Type to search plants..." autocomplete="off">
+                <div id="search-results" class="search-results"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="plant-count" id="plant-count"></div>
+    <div id="selected-plants" class="selected-plants">
+        <span class="empty-garden">No plants added yet. Search above to add plants.</span>
+    </div>
+
+    <div class="garden-actions">
+        <button class="btn" id="build-btn" onclick="buildCalendar()">Build Calendar</button>
+        <button class="btn-danger" id="clear-btn" onclick="clearGarden()" style="display:none;">Clear All</button>
+    </div>
+</div>
+
+<div id="calendar-results">
+{% if garden_data %}
+<div class="timeline">
+    <h2>📅 Growing Calendar — Zone {{ zone_str }}</h2>
+    <p class="subtitle">
+        Last frost: {{ frost_data.last_frost_for_year|date:"F j" }} ·
+        First frost: {{ frost_data.first_frost_for_year|date:"F j" }} ·
+        Season: {{ frost_data.growing_season_days }} days
+    </p>
+
+    {% for item in garden_data %}
+    <div class="card timeline-plant" data-plant-id="{{ item.plant.pk }}">
+        <div class="plant-header">
+            <h3>{{ item.plant.display_name }}</h3>
+            <button class="remove-from-calendar" onclick="removePlant({{ item.plant.pk }})">Remove</button>
+        </div>
+
+        <dl class="calendar-dates">
+            {% if item.calendar.start_indoors %}
+            <dt>🏠 Start Indoors</dt>
+            <dd>{{ item.calendar.start_indoors|date:"F j" }}</dd>
+            {% endif %}
+
+            {% if item.calendar.transplant %}
+            <dt>🌿 Transplant</dt>
+            <dd>{{ item.calendar.transplant|date:"F j" }}</dd>
+            {% endif %}
+
+            {% if item.calendar.direct_sow %}
+            <dt>🌱 Direct Sow</dt>
+            <dd>{{ item.calendar.direct_sow|date:"F j" }}</dd>
+            {% endif %}
+
+            {% if item.calendar.harvest_start %}
+            <dt>🍅 Harvest</dt>
+            <dd>{{ item.calendar.harvest_start|date:"F j" }} — {{ item.calendar.harvest_end|date:"F j" }}</dd>
+            {% endif %}
+        </dl>
+
+        {% if item.calendar.frost_warning %}
+        <div class="frost-warning">⚠️ Harvest may extend past first frost — plan for frost protection.</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if companion_warnings %}
+<div class="warnings">
+    <h2>🌻 Companion Planting Notes</h2>
+    {% for rel in companion_warnings %}
+    <div class="warning-item warning-{{ rel.relationship }}">
+        {% if rel.relationship == 'companion' %}👍{% else %}⚠️{% endif %}
+        <strong>{{ rel.plant_a.name }} & {{ rel.plant_b.name }}</strong>
+        — {{ rel.reason }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const STORAGE_PLANTS = 'garden_plants';
+const STORAGE_ZIP = 'garden_zip';
+
+// --- Storage ---
+function getPlants() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_PLANTS)) || []; }
+    catch { return []; }
+}
+function savePlants(plants) {
+    localStorage.setItem(STORAGE_PLANTS, JSON.stringify(plants));
+}
+function getZip() { return localStorage.getItem(STORAGE_ZIP) || ''; }
+function saveZip(zip) { localStorage.setItem(STORAGE_ZIP, zip); }
+
+// --- Add/Remove ---
+function addPlant(id, name) {
+    const plants = getPlants();
+    if (plants.find(p => p.id === id)) return;
+    plants.push({ id: id, name: name });
+    savePlants(plants);
+    renderChips();
+}
+
+function removePlant(id) {
+    savePlants(getPlants().filter(p => p.id !== id));
+    renderChips();
+    // Rebuild calendar to reflect removal
+    buildCalendar();
+}
+
+function clearGarden() {
+    if (!confirm('Remove all plants from your garden?')) return;
+    savePlants([]);
+    renderChips();
+    document.getElementById('calendar-results').innerHTML = '';
+}
+
+// --- Render plant chips ---
+function renderChips() {
+    const container = document.getElementById('selected-plants');
+    const countEl = document.getElementById('plant-count');
+    const clearBtn = document.getElementById('clear-btn');
+    const plants = getPlants();
+
+    if (plants.length === 0) {
+        container.innerHTML = '<span class="empty-garden">No plants added yet. Search above to add plants.</span>';
+        countEl.textContent = '';
+        clearBtn.style.display = 'none';
+        return;
+    }
+
+    clearBtn.style.display = 'inline-block';
+    countEl.textContent = plants.length + ' plant' + (plants.length !== 1 ? 's' : '') + ' in your garden';
+    container.innerHTML = plants.map(p =>
+        '<span class="plant-chip">' +
+            p.name +
+            ' <button class="remove-btn" onclick="removePlantChip(' + p.id + ')" title="Remove">&times;</button>' +
+        '</span>'
+    ).join('');
+}
+
+function removePlantChip(id) {
+    savePlants(getPlants().filter(p => p.id !== id));
+    renderChips();
+    // If calendar is showing, remove that card too
+    const card = document.querySelector('.timeline-plant[data-plant-id="' + id + '"]');
+    if (card) card.remove();
+}
+
+// --- Search ---
+let searchTimer = null;
+const searchInput = document.getElementById('plant-search');
+const resultsDiv = document.getElementById('search-results');
+
+searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    const q = this.value.trim();
+    if (q.length < 2) { resultsDiv.classList.remove('active'); return; }
+    searchTimer = setTimeout(function() { doSearch(q); }, 200);
+});
+
+searchInput.addEventListener('focus', function() {
+    if (this.value.trim().length >= 2) doSearch(this.value.trim());
+});
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.search-wrapper')) resultsDiv.classList.remove('active');
+});
+
+function doSearch(q) {
+    fetch('/api/plant-search/?q=' + encodeURIComponent(q))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            const added = getPlants().map(function(p) { return p.id; });
+            if (data.results.length === 0) {
+                resultsDiv.innerHTML = '<div style="padding:0.6rem 0.8rem;color:var(--text-light);font-size:0.9rem;">No plants found</div>';
+            } else {
+                resultsDiv.innerHTML = data.results.map(function(p) {
+                    var isAdded = added.indexOf(p.id) !== -1;
+                    var escapedName = p.name.replace(/'/g, "\\'");
+                    var onclick = isAdded ? '' : "addPlantFromSearch(" + p.id + ",'" + escapedName + "')";
+                    return '<div class="search-result-item ' + (isAdded ? 'already-added' : '') + '"' +
+                           ' onclick="' + onclick + '">' +
+                           '<span>' + p.name + '</span>' +
+                           '<span class="tag tag-' + p.type + '">' + p.type + '</span>' +
+                           '</div>';
+                }).join('');
+            }
+            resultsDiv.classList.add('active');
+        });
+}
+
+function addPlantFromSearch(id, name) {
+    addPlant(id, name);
+    searchInput.value = '';
+    resultsDiv.classList.remove('active');
+}
+
+// --- Build calendar ---
+function buildCalendar() {
+    var zip = document.getElementById('zip-input').value.trim();
+    var plants = getPlants();
+
+    if (!zip || zip.length !== 5) {
+        alert('Please enter a valid 5-digit zip code.');
+        return;
+    }
+    if (plants.length === 0) {
+        // No plants — just clear the calendar
+        document.getElementById('calendar-results').innerHTML = '';
+        return;
+    }
+
+    saveZip(zip);
+
+    var params = new URLSearchParams();
+    params.set('zip', zip);
+    plants.forEach(function(p) { params.append('plants', p.id); });
+    window.location.href = '/my-garden/?' + params.toString();
+}
+
+// --- Init ---
+document.addEventListener('DOMContentLoaded', function() {
+    // Restore zip
+    var urlZip = new URLSearchParams(window.location.search).get('zip');
+    var zip = urlZip || getZip();
+    document.getElementById('zip-input').value = zip;
+    if (zip) saveZip(zip);
+
+    // Sync URL plants to localStorage (URL is source of truth after Build Calendar)
+    var urlPlants = new URLSearchParams(window.location.search).getAll('plants');
+    if (urlPlants.length > 0) {
+        // The server has rendered calendar data — make sure localStorage matches.
+        // We need names from localStorage or from the rendered page.
+        var existingPlants = getPlants();
+        var existingMap = {};
+        existingPlants.forEach(function(p) { existingMap[p.id] = p.name; });
+
+        // Also grab names from rendered timeline cards
+        document.querySelectorAll('.timeline-plant').forEach(function(card) {
+            var id = parseInt(card.getAttribute('data-plant-id'));
+            var h3 = card.querySelector('h3');
+            if (h3 && id) {
+                existingMap[id] = h3.textContent.replace('Remove', '').trim();
+            }
+        });
+
+        var synced = urlPlants.map(function(idStr) {
+            var id = parseInt(idStr);
+            return { id: id, name: existingMap[id] || 'Plant #' + id };
+        });
+        savePlants(synced);
+    }
+
+    renderChips();
+
+    // Enter key on zip
+    document.getElementById('zip-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); buildCalendar(); }
+    });
+
+    // Enter key on search should not submit
+    document.getElementById('plant-search').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); }
+    });
+});
+</script>
+{% endblock %}

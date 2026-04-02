@@ -1,0 +1,240 @@
+{% extends "garden/base.html" %}
+{% block title %}{{ plant.display_name }} — GardenApp{% endblock %}
+
+{% block extra_css %}
+.plant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.8rem;
+    margin: 1.5rem 0;
+}
+.info-item {
+    background: var(--green-pale);
+    padding: 0.8rem;
+    border-radius: 8px;
+    text-align: center;
+}
+.info-item .label {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.info-item .value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--green-dark);
+}
+.section { margin-top: 2rem; }
+.companion-list {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+}
+.companion-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.6rem 0.8rem;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #eee;
+}
+.companion-item .reason {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+.back-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'garden:plant_list' %}{% if zip_code %}?zip={{ zip_code }}{% endif %}" class="back-link">← Back to plants</a>
+
+<div class="card">
+    <div class="plant-header">
+        <div>
+            <h1>{{ plant.name }}</h1>
+            {% if plant.variety %}<p class="subtitle" style="margin-bottom: 0;">{{ plant.variety }}</p>{% endif %}
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: start;">
+            <button class="btn btn-outline" id="garden-toggle-btn"
+                    onclick="toggleGarden({{ plant.pk }}, '{{ plant.display_name|escapejs }}')"
+                    style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+                + Add to Garden
+            </button>
+            <span class="tag tag-{{ plant.plant_type }}">{{ plant.get_plant_type_display }}</span>
+        </div>
+    </div>
+
+    {% if plant.description %}
+    <p>{{ plant.description }}</p>
+    {% endif %}
+
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="label">Sun</div>
+            <div class="value">{{ plant.get_sun_requirement_display }}</div>
+        </div>
+        <div class="info-item">
+            <div class="label">Water</div>
+            <div class="value">{{ plant.get_water_needs_display }}</div>
+        </div>
+        <div class="info-item">
+            <div class="label">Spacing</div>
+            <div class="value">{{ plant.spacing_inches }}"</div>
+        </div>
+        <div class="info-item">
+            <div class="label">Days to Harvest</div>
+            <div class="value">{{ plant.days_to_maturity_min }}–{{ plant.days_to_maturity_max }}</div>
+        </div>
+        <div class="info-item">
+            <div class="label">Min Temp</div>
+            <div class="value">{{ plant.min_temp_f }}°F</div>
+        </div>
+        {% if plant.seed_depth_inches %}
+        <div class="info-item">
+            <div class="label">Seed Depth</div>
+            <div class="value">{{ plant.seed_depth_inches }}"</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if calendar %}
+<div class="section">
+    <div class="card">
+        <h2>📅 Your Planting Calendar — Zone {{ calendar.zone }}</h2>
+        <p class="subtitle">Based on your zip code {{ zip_code }}</p>
+
+        <dl class="calendar-dates">
+            {% if calendar.start_indoors %}
+            <dt>🏠 Start Indoors</dt>
+            <dd>{{ calendar.start_indoors|date:"F j, Y" }}</dd>
+            {% endif %}
+
+            {% if calendar.transplant %}
+            <dt>🌿 Transplant Outside</dt>
+            <dd>{{ calendar.transplant|date:"F j, Y" }}</dd>
+            {% endif %}
+
+            {% if calendar.direct_sow %}
+            <dt>🌱 Direct Sow</dt>
+            <dd>{{ calendar.direct_sow|date:"F j, Y" }}</dd>
+            {% endif %}
+
+            {% if calendar.harvest_start %}
+            <dt>🍅 Harvest Window</dt>
+            <dd>{{ calendar.harvest_start|date:"F j" }} — {{ calendar.harvest_end|date:"F j, Y" }}</dd>
+            {% endif %}
+
+            <dt>❄️ Last Frost</dt>
+            <dd>{{ calendar.last_frost|date:"F j" }}</dd>
+
+            <dt>🍂 First Frost</dt>
+            <dd>{{ calendar.first_frost|date:"F j" }}</dd>
+        </dl>
+
+        {% if calendar.frost_warning %}
+        <div class="frost-warning">
+            ⚠️ Heads up — this plant's harvest window may extend past your first frost date.
+            Consider starting earlier or using frost protection.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% elif not frost_data %}
+<div class="section">
+    <div class="card" style="text-align: center;">
+        <p>Enter your zip code on the <a href="/">home page</a> to see personalized planting dates.</p>
+    </div>
+</div>
+{% endif %}
+
+{% if companions %}
+<div class="section">
+    <div class="card">
+        <h2>🌻 Companion Planting</h2>
+        <div class="companion-list">
+            {% for comp in companions %}
+            <div class="companion-item">
+                <span class="tag tag-{{ comp.relationship }}">
+                    {% if comp.relationship == 'companion' %}👍 Good{% else %}👎 Avoid{% endif %}
+                </span>
+                <div>
+                    <a href="{% url 'garden:plant_detail' comp.plant.pk %}{% if zip_code %}?zip={{ zip_code }}{% endif %}">
+                        {{ comp.plant.display_name }}
+                    </a>
+                    <div class="reason">{{ comp.reason }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if plant.growing_tips %}
+<div class="section">
+    <div class="card">
+        <h2>💡 Growing Tips</h2>
+        <p>{{ plant.growing_tips|linebreaksbr }}</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const STORAGE_PLANTS = 'garden_plants';
+
+function getPlants() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_PLANTS)) || []; }
+    catch { return []; }
+}
+function savePlants(plants) {
+    localStorage.setItem(STORAGE_PLANTS, JSON.stringify(plants));
+}
+
+function toggleGarden(id, name) {
+    var plants = getPlants();
+    var btn = document.getElementById('garden-toggle-btn');
+    var existing = plants.find(function(p) { return p.id === id; });
+
+    if (existing) {
+        plants = plants.filter(function(p) { return p.id !== id; });
+        savePlants(plants);
+        btn.textContent = '+ Add to Garden';
+        btn.classList.remove('btn');
+        btn.classList.add('btn', 'btn-outline');
+    } else {
+        plants.push({ id: id, name: name });
+        savePlants(plants);
+        btn.textContent = '✓ In My Garden';
+        btn.classList.remove('btn-outline');
+        btn.classList.add('btn');
+    }
+}
+
+// Set initial button state
+document.addEventListener('DOMContentLoaded', function() {
+    var plants = getPlants();
+    var plantId = {{ plant.pk }};
+    var btn = document.getElementById('garden-toggle-btn');
+    if (plants.find(function(p) { return p.id === plantId; })) {
+        btn.textContent = '✓ In My Garden';
+        btn.classList.remove('btn-outline');
+        btn.classList.add('btn');
+    }
+});
+</script>
+{% endblock %}

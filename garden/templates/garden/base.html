@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Garden App{% endblock %}</title>
+    <style>
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box;
+         }
+
+        :root {
+            --green-dark: #2d5016;
+            --green-mid: #4a7c23;
+            --green-light: #7cb342;
+            --green-pale: #e8f5e9;
+            --brown: #5d4037;
+            --brown-light: #8d6e63;
+            --cream: #fefdf8;
+            --text: #2c2c2c;
+            --text-light: #666;
+            --danger: #c62828;
+            --warning: #f9a825;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        nav {
+            background: var(--green-dark);
+            padding: 0.8rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        nav .logo {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        nav .logo span { 
+            color: var(--green-light);
+         }
+
+        nav .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        nav .nav-links a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        nav .nav-links a:hover { 
+            color: white;
+         }
+
+        nav .zone-badge {
+            margin-left: auto;
+            background: rgba(255,255,255,0.15);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            color: var(--green-light);
+            font-size: 0.85rem;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 { 
+            font-size: 2rem; margin-bottom: 0.5rem; color: var(--green-dark);
+         }
+        h2 { 
+            font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--green-dark);
+         }
+        h3 { 
+            font-size: 1.1rem; color: var(--brown);
+         }
+
+        .subtitle { 
+            color: var(--text-light); margin-bottom: 1.5rem;
+         }
+
+        a { 
+            color: var(--green-mid);
+         }
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            background: var(--green-mid);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn:hover { 
+            background: var(--green-dark); color: white;
+         }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--green-mid);
+            color: var(--green-mid);
+        }
+        .btn-outline:hover { 
+            background: var(--green-mid); color: white;
+         }
+
+        input[type="text"], input[type="search"], select {
+            padding: 0.6rem 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--green-mid);
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .tag-vegetable { 
+            background: #e8f5e9; color: #2e7d32;
+         }
+        .tag-fruit { 
+            background: #fff3e0; color: #e65100; 
+        }
+        .tag-herb { 
+            background: #e8eaf6; color: #283593;
+         }
+        .tag-flower { 
+            background: #fce4ec; color: #c62828;
+         }
+
+        .tag-companion { 
+            background: #e8f5e9; color: #2e7d32;
+         }
+        .tag-antagonist { 
+            background: #ffebee; color: #c62828;
+         }
+
+        .frost-warning {
+            background: #fff8e1;
+            border-left: 4px solid var(--warning);
+            padding: 0.8rem 1rem;
+            border-radius: 0 6px 6px 0;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .calendar-dates {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.4rem 1rem;
+            margin: 1rem 0;
+        }
+        .calendar-dates dt {
+            font-weight: 600;
+            color: var(--brown);
+            font-size: 0.9rem;
+        }
+        .calendar-dates dd {
+            font-size: 0.9rem;
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">🌱 <span>Garden</span>App</a>
+        <div class="nav-links">
+            <a href="{% url 'garden:plant_list' %}{% if zip_code %}?zip={{ zip_code }}{% endif %}">Plants</a>
+            <a href="{% url 'garden:my_garden' %}{% if zip_code %}?zip={{ zip_code }}{% endif %}">My Garden</a>
+        </div>
+        {% if zone_str %}
+        <div class="zone-badge">📍 Zone {{ zone_str }} · {{ zip_code }}</div>
+        {% endif %}
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

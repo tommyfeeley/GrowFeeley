@@ -1,0 +1,108 @@
+{% extends "garden/base.html" %}
+{% block title %}Plants — GardenApp{% endblock %}
+
+{% block extra_css %}
+.filters {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.filters input[type="search"] { 
+    flex: 1; min-width: 200px;
+ }
+.plant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+.plant-card {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.plant-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.plant-card h3 { 
+    margin-bottom: 0.3rem;
+ }
+.plant-card .variety { 
+    color: var(--text-light); font-size: 0.9rem;
+ }
+.plant-card .meta {
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    display: flex;
+    gap: 1rem;
+}
+.plant-card .dates {
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--green-dark);
+    font-weight: 500;
+}
+.no-results {
+    text-align: center;
+    color: var(--text-light);
+    padding: 3rem;
+}
+{% endblock %}
+
+{% block content %}
+<h1>Plants</h1>
+<p class="subtitle">
+    {{ plants|length }} plant{{ plants|length|pluralize }} available
+    {% if zone_str %} · Showing dates for Zone {{ zone_str }}{% endif %}
+</p>
+
+<form method="get" class="filters">
+    {% if zip_code %}<input type="hidden" name="zip" value="{{ zip_code }}">{% endif %}
+    <input type="search" name="q" value="{{ query }}" placeholder="Search plants...">
+    <select name="type" onchange="this.form.submit()">
+        <option value="">All Types</option>
+        {% for value, label in plant_types %}
+        <option value="{{ value }}" {% if plant_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn" type="submit">Search</button>
+</form>
+
+{% if plants %}
+<div class="plant-grid">
+    {% for plant in plants %}
+    <a href="{% url 'garden:plant_detail' plant.pk %}{% if zip_code %}?zip={{ zip_code }}{% endif %}" class="plant-card card">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+            <h3>{{ plant.name }}</h3>
+            <span class="tag tag-{{ plant.plant_type }}">{{ plant.get_plant_type_display }}</span>
+        </div>
+        {% if plant.variety %}
+        <div class="variety">{{ plant.variety }}</div>
+        {% endif %}
+        <div class="meta">
+            <span>☀️ {{ plant.get_sun_requirement_display }}</span>
+            <span>📏 {{ plant.spacing_inches }}" apart</span>
+        </div>
+        <div class="meta">
+            <span>🕐 {{ plant.days_to_maturity_min }}–{{ plant.days_to_maturity_max }} days to harvest</span>
+        </div>
+        {% if frost_data %}
+        {% with cal=plant.get_calendar %}
+        <div class="dates">
+            {% if plant.start_indoors %}🏠 Start indoors{% endif %}
+            {% if plant.can_direct_sow %}🌱 Direct sow{% endif %}
+        </div>
+        {% endwith %}
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="no-results">
+    <p>No plants found{% if query %} matching "{{ query }}"{% endif %}.</p>
+</div>
+{% endif %}
+{% endblock %}
