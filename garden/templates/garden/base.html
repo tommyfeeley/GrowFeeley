@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Garden App{% endblock %}</title>
+    <title>{% block title %}Grow Feeley{% endblock %}</title>
     <style>
-        * { 
-            margin: 0; padding: 0; box-sizing: border-box;
-         }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --green-dark: #2d5016;
@@ -156,11 +154,11 @@
             background: #e8f5e9; color: #2e7d32;
          }
         .tag-fruit { 
-            background: #fff3e0; color: #e65100; 
-        }
+            background: #fff3e0; color: #e65100;
+         }
         .tag-herb { 
             background: #e8eaf6; color: #283593;
-         }
+        }
         .tag-flower { 
             background: #fce4ec; color: #c62828;
          }
@@ -201,10 +199,11 @@
 </head>
 <body>
     <nav>
-        <a href="/" class="logo">🌱 <span>Garden</span>App</a>
+        <a href="/" class="logo">🌱 <span>Grow</span>Feeley</a>
         <div class="nav-links">
             <a href="{% url 'garden:plant_list' %}{% if zip_code %}?zip={{ zip_code }}{% endif %}">Plants</a>
             <a href="{% url 'garden:my_garden' %}{% if zip_code %}?zip={{ zip_code }}{% endif %}">My Garden</a>
+            <a href="{% url 'garden:chat' %}{% if zip_code %}?zip={{ zip_code }}{% endif %}">Ask AI</a>
         </div>
         {% if zone_str %}
         <div class="zone-badge">📍 Zone {{ zone_str }} · {{ zip_code }}</div>

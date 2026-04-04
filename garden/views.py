@@ -1,9 +1,16 @@
+import json
+import logging
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Q
+from django.conf import settings
 from .models import FrostDateByZone, Plant, CompanionRelationship
 from .services import lookup_zone
+from . import chat_agent
 
+logger = logging.getLogger(__name__)
 
 def _get_zone_context(zip_code):
     # Helper: resolve a zip code to zone + frost data. Returns (frost_data, zone_str, error)
@@ -160,3 +167,56 @@ def api_plant_search(request):
 
     results = [{'id': p.pk, 'name': p.display_name, 'type': p.plant_type} for p in plants]
     return JsonResponse({'results': results})
+
+@ensure_csrf_cookie
+def garden_chat(request):
+    """Chat page."""
+    zip_code = request.GET.get('zip', '').strip()
+    frost_data, zone_str, _ = _get_zone_context(zip_code)
+    return render(request, 'garden/chat.html', {
+        'frost_data': frost_data,
+        'zone_str': zone_str,
+        'zip_code': zip_code,
+    })
+
+
+@require_POST
+def api_chat(request):
+    """
+    AJAX endpoint for chat messages.
+    Expects JSON body: {
+        "messages": [{"role": "user", "content": "..."}, ...],
+        "garden_state": {"plants": [...], "zip_code": "...", "zone_str": "..."}
+    }
+    Returns JSON: {
+        "response": "...",
+        "garden_state": {...},
+        "garden_actions": [{"action": "add", "plant_id": 1, "plant_name": "..."}]
+    }
+    """
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    messages = body.get('messages', [])
+    garden_state = body.get('garden_state', {})
+
+    if not messages:
+        return JsonResponse({'error': 'No messages provided'}, status=400)
+
+    if not settings.ANTHROPIC_API_KEY:
+        return JsonResponse({
+            'error': 'Anthropic API key not configured. Set the ANTHROPIC_API_KEY environment variable.'
+        }, status=500)
+
+    try:
+        response_text, updated_state, garden_actions = chat_agent.chat(messages, garden_state)
+        return JsonResponse({
+            'response': response_text,
+            'garden_state': updated_state,
+            'garden_actions': garden_actions,
+        })
+    except Exception as e:
+        logger.exception("Chat API error")
+        return JsonResponse({'error': f'Chat error: {str(e)}'}, status=500)

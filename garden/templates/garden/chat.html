@@ -1,0 +1,363 @@
+{% extends "garden/base.html" %}
+{% block title %}Garden AI Chat: GrowFeeley{% endblock %}
+
+{% block extra_css %}
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 160px);
+    max-height: 700px;
+}
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+.message {
+    max-width: 85%;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+.message-user {
+    align-self: flex-end;
+    background: var(--green-mid);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+.message-assistant {
+    align-self: flex-start;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-bottom-left-radius: 4px;
+}
+.message-assistant p { margin: 0.4rem 0; }
+.message-assistant p:first-child { margin-top: 0; }
+.message-assistant p:last-child { margin-bottom: 0; }
+.message-assistant ul, .message-assistant ol {
+    margin: 0.4rem 0;
+    padding-left: 1.5rem;
+}
+.message-assistant strong { color: var(--green-dark); }
+.message-error {
+    align-self: center;
+    background: #ffebee;
+    color: var(--danger);
+    font-size: 0.85rem;
+    border-radius: 8px;
+}
+.message-system {
+    align-self: center;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+/* Garden action notifications */
+.garden-action {
+    align-self: center;
+    background: var(--green-pale);
+    border: 1px solid var(--green-light);
+    color: var(--green-dark);
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+}
+
+.typing-indicator {
+    align-self: flex-start;
+    padding: 0.8rem 1rem;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    display: none;
+}
+.typing-indicator span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--green-light);
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typing 1.2s infinite;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing {
+    0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+    30% { opacity: 1; transform: scale(1); }
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem 0 0;
+    border-top: 1px solid #e0e0e0;
+}
+.chat-input-area input {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 24px;
+    font-size: 0.95rem;
+}
+.chat-input-area input:focus {
+    outline: none;
+    border-color: var(--green-mid);
+}
+.chat-input-area button {
+    padding: 0.7rem 1.2rem;
+    border-radius: 24px;
+    font-size: 0.95rem;
+}
+
+.suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.suggestion-chip {
+    background: white;
+    border: 1px solid var(--green-light);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--green-dark);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.suggestion-chip:hover {
+    background: var(--green-pale);
+}
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-messages" id="chat-messages">
+        <div class="message message-assistant">
+            <p>Hi! I'm your garden assistant. I can help you with planting schedules, companion planting, and managing your garden. What would you like to know?</p>
+        </div>
+        <div class="suggestions" id="suggestions">
+            <button class="suggestion-chip" onclick="sendSuggestion(this)">When should I plant tomatoes?</button>
+            <button class="suggestion-chip" onclick="sendSuggestion(this)">What grows well with basil?</button>
+            <button class="suggestion-chip" onclick="sendSuggestion(this)">What's in my garden?</button>
+            <button class="suggestion-chip" onclick="sendSuggestion(this)">Add jalapeños to my garden</button>
+        </div>
+        <div class="typing-indicator" id="typing">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Ask about planting, companions, or your garden..."
+               autocomplete="off">
+        <button class="btn" id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const STORAGE_PLANTS = 'garden_plants';
+const STORAGE_ZIP = 'garden_zip';
+const STORAGE_CHAT = 'garden_chat_history';
+
+// --- State ---
+let chatHistory = [];  // Messages sent to API: [{role, content}]
+let isLoading = false;
+
+function getGardenState() {
+    let plants = [];
+    let zip = '';
+    let zone_str = '';
+    try { plants = JSON.parse(localStorage.getItem(STORAGE_PLANTS)) || []; } catch {}
+    zip = localStorage.getItem(STORAGE_ZIP) || '';
+
+    // zone_str from server render if available
+    zone_str = '{{ zone_str|default:"" }}';
+    if (!zone_str && zip) {
+        // We'll let the agent look it up via tool
+    }
+    return { plants: plants, zip_code: zip, zone_str: zone_str };
+}
+
+function syncGardenToStorage(state) {
+    if (state.plants) {
+        localStorage.setItem(STORAGE_PLANTS, JSON.stringify(state.plants));
+    }
+}
+
+// --- Chat UI ---
+const messagesDiv = document.getElementById('chat-messages');
+const typingDiv = document.getElementById('typing');
+const chatInput = document.getElementById('chat-input');
+
+function addMessage(role, content) {
+    const div = document.createElement('div');
+    div.className = 'message message-' + role;
+
+    if (role === 'assistant') {
+        // Simple markdown-ish rendering
+        div.innerHTML = renderMarkdown(content);
+    } else {
+        div.textContent = content;
+    }
+
+    messagesDiv.insertBefore(div, typingDiv);
+    scrollToBottom();
+}
+
+function addGardenAction(action) {
+    const div = document.createElement('div');
+    div.className = 'garden-action';
+    if (action.action === 'add') {
+        div.textContent = '🌱 Added ' + action.plant_name + ' to your garden';
+    } else if (action.action === 'remove') {
+        div.textContent = '🗑️ Removed ' + action.plant_name + ' from your garden';
+    }
+    messagesDiv.insertBefore(div, typingDiv);
+    scrollToBottom();
+}
+
+function addError(text) {
+    const div = document.createElement('div');
+    div.className = 'message message-error';
+    div.textContent = text;
+    messagesDiv.insertBefore(div, typingDiv);
+    scrollToBottom();
+}
+
+function showTyping(show) {
+    typingDiv.style.display = show ? 'block' : 'none';
+    if (show) scrollToBottom();
+}
+
+function scrollToBottom() {
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function renderMarkdown(text) {
+    // Basic markdown: bold, paragraphs, lists
+    let html = text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`(.*?)`/g, '<code>$1</code>');
+
+    // Split into paragraphs
+    html = html.split('\n\n').map(function(para) {
+        para = para.trim();
+        if (!para) return '';
+        // Check for list items
+        if (para.match(/^[-•]/m)) {
+            var items = para.split('\n').map(function(line) {
+                return '<li>' + line.replace(/^[-•]\s*/, '') + '</li>';
+            }).join('');
+            return '<ul>' + items + '</ul>';
+        }
+        if (para.match(/^\d+\./m)) {
+            var items = para.split('\n').map(function(line) {
+                return '<li>' + line.replace(/^\d+\.\s*/, '') + '</li>';
+            }).join('');
+            return '<ol>' + items + '</ol>';
+        }
+        return '<p>' + para.replace(/\n/g, '<br>') + '</p>';
+    }).join('');
+
+    return html;
+}
+
+// --- Send message ---
+function sendMessage() {
+    var text = chatInput.value.trim();
+    if (!text || isLoading) return;
+
+    // Hide suggestions after first message
+    var suggestions = document.getElementById('suggestions');
+    if (suggestions) suggestions.remove();
+
+    addMessage('user', text);
+    chatInput.value = '';
+
+    // Add to history
+    chatHistory.push({ role: 'user', content: text });
+
+    // Call API
+    isLoading = true;
+    showTyping(true);
+    document.getElementById('send-btn').disabled = true;
+
+    fetch('/api/chat/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            messages: chatHistory,
+            garden_state: getGardenState(),
+        }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        showTyping(false);
+        isLoading = false;
+        document.getElementById('send-btn').disabled = false;
+
+        if (data.error) {
+            addError(data.error);
+            return;
+        }
+
+        // Show garden actions (add/remove notifications)
+        if (data.garden_actions) {
+            data.garden_actions.forEach(function(action) {
+                addGardenAction(action);
+            });
+        }
+
+        // Sync garden state to localStorage
+        if (data.garden_state) {
+            syncGardenToStorage(data.garden_state);
+        }
+
+        // Show response
+        addMessage('assistant', data.response);
+
+        // Add to history
+        chatHistory.push({ role: 'assistant', content: data.response });
+    })
+    .catch(function(err) {
+        showTyping(false);
+        isLoading = false;
+        document.getElementById('send-btn').disabled = false;
+        addError('Connection error. Please try again.');
+    });
+}
+
+function sendSuggestion(btn) {
+    chatInput.value = btn.textContent;
+    sendMessage();
+}
+
+// --- CSRF helper ---
+function getCookie(name) {
+    var value = '; ' + document.cookie;
+    var parts = value.split('; ' + name + '=');
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
+}
+
+// --- Init ---
+chatInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') sendMessage();
+});
+chatInput.focus();
+</script>
+{% endblock %}

@@ -1,72 +1,72 @@
 {% extends "garden/base.html" %}
-{% block title %}GardenApp — Know When to Grow{% endblock %}
+{% block title %}GrowFeeley: Know When to Grow{% endblock %}
 
 {% block extra_css %}
-.hero {
-    text-align: center;
-    padding: 3rem 1rem;
-}
-.hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.3rem;
-}
-.hero .subtitle {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-}
-.zip-form {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-.zip-form input {
-    width: 160px;
-    text-align: center;
-    font-size: 1.1rem;
-}
-.zone-result {
-    max-width: 450px;
-    margin: 0 auto;
-    text-align: left;
-}
-.zone-result h2 {
-    text-align: center;
-    margin-bottom: 1rem;
-}
-.zone-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-.zone-stat {
-    text-align: center;
-    padding: 1rem;
-    background: var(--green-pale);
-    border-radius: 8px;
-}
-.zone-stat .label {
-    font-size: 0.8rem;
-    color: var(--text-light);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.zone-stat .value {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--green-dark);
-}
-.zone-actions {
-    display: flex;
-    gap: 0.8rem;
-    justify-content: center;
-}
-.not-found {
-    color: var(--danger);
-    text-align: center;
-    margin-top: 1rem;
-}
+    .hero {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+    .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.3rem;
+    }
+    .hero .subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+    .zip-form {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .zip-form input {
+        width: 160px;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+    .zone-result {
+        max-width: 450px;
+        margin: 0 auto;
+        text-align: left;
+    }
+    .zone-result h2 {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    .zone-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .zone-stat {
+        text-align: center;
+        padding: 1rem;
+        background: var(--green-pale);
+        border-radius: 8px;
+    }
+    .zone-stat .label {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .zone-stat .value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--green-dark);
+    }
+    .zone-actions {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+    }
+    .not-found {
+        color: var(--danger);
+        text-align: center;
+        margin-top: 1rem;
+    }
 {% endblock %}
 
 {% block content %}
