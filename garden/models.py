@@ -3,7 +3,7 @@ from datetime import timedelta, date
 
 
 class FrostDateByZone(models.Model):
-    #Average frost dates by USDA hardiness zone. ~15 rows covers the whole US
+    #Average frost dates by USDA hardiness zone. ~15 rows covers the whole US.
     zone = models.CharField(max_length=5, unique=True, help_text="e.g. 4a, 6b, 7a")
     avg_last_frost = models.DateField(help_text="Average last spring frost (use 2000 as base year, e.g. 2000-04-15)")
     avg_first_frost = models.DateField(help_text="Average first fall frost (use 2000 as base year, e.g. 2000-10-15)")
@@ -29,6 +29,20 @@ class FrostDateByZone(models.Model):
         if year is None:
             year = date.today().year
         return self.avg_first_frost.replace(year=year)
+
+
+class ZipToZone(models.Model):
+    #Maps US zip codes to USDA hardiness zones. ~33,000 rows from frostline dataset.
+    zip_code = models.CharField(max_length=5, unique=True, db_index=True)
+    zone = models.CharField(max_length=5, help_text="e.g. 6b, 7a")
+
+    class Meta:
+        ordering = ['zip_code']
+        verbose_name = 'Zip to Zone'
+        verbose_name_plural = 'Zip to Zone Mappings'
+
+    def __str__(self):
+        return f"{self.zip_code} → Zone {self.zone}"
 
 
 class Plant(models.Model):
@@ -98,7 +112,7 @@ class Plant(models.Model):
         return self.name
 
     def get_calendar(self, frost_data):
-        """Calculate personalized planting dates for a given FrostDateByZone."""
+        #Calculate personalized planting dates for a given FrostDateByZone.
         year = date.today().year
         last_frost = frost_data.last_frost_for_year(year)
         first_frost = frost_data.first_frost_for_year(year)

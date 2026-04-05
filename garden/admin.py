@@ -2,13 +2,20 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import reverse, path
 from django.utils.html import format_html
-from .models import FrostDateByZone, Plant, CompanionRelationship
+from .models import FrostDateByZone, ZipToZone, Plant, CompanionRelationship
 
 
 @admin.register(FrostDateByZone)
 class FrostDateByZoneAdmin(admin.ModelAdmin):
     list_display = ('zone', 'avg_last_frost', 'avg_first_frost', 'growing_season_days')
     ordering = ('zone',)
+
+
+@admin.register(ZipToZone)
+class ZipToZoneAdmin(admin.ModelAdmin):
+    list_display = ('zip_code', 'zone')
+    search_fields = ('zip_code',)
+    list_filter = ('zone',)
 
 
 @admin.register(Plant)
