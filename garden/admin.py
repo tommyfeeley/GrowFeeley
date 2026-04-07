@@ -44,13 +44,13 @@ class PlantAdmin(admin.ModelAdmin):
     actions = ['duplicate_selected']
 
     def duplicate_link(self, obj):
-        """Show a 'Duplicate' link in the list view for each plant."""
+        #Show a 'Duplicate' link in the list view for each plant.
         url = reverse('admin:garden_plant_duplicate', args=[obj.pk])
         return format_html('<a href="{}">Duplicate</a>', url)
     duplicate_link.short_description = 'Quick Add'
 
     def get_urls(self):
-        """Add custom URL for the duplicate view."""
+        #Add custom URL for the duplicate view.
         custom_urls = [
             path(
                 '<int:pk>/duplicate/',
@@ -61,10 +61,8 @@ class PlantAdmin(admin.ModelAdmin):
         return custom_urls + super().get_urls()
 
     def duplicate_view(self, request, pk):
-        """
-        Redirect to the 'add' page with all fields pre-filled from the source plant.
-        Clears the variety so you just type the new variety name.
-        """
+    #Redirect to the 'add' page with all fields pre-filled from the source plant.
+    #Clears the variety so you just type the new variety name.
         source = Plant.objects.get(pk=pk)
 
         # Build query params to prefill the add form

@@ -26,6 +26,9 @@
             background: var(--cream);
             color: var(--text);
             line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         nav {
@@ -77,6 +80,7 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 2rem;
+            flex: 1;
         }
 
         h1 { 
@@ -194,6 +198,24 @@
             font-size: 0.9rem;
         }
 
+        .site-footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            border-top: 1px solid #e0e0e0;
+            margin-top: 2rem;
+        }
+
+        .site-footer a {
+            color: var(--green-mid);
+            text-decoration: none;
+        }
+
+        .site-footer a:hover {
+            text-decoration: underline;
+        }
+
         {% block extra_css %}{% endblock %}
     </style>
 </head>
@@ -215,5 +237,8 @@
     </main>
 
     {% block extra_js %}{% endblock %}
+    <footer class="site-footer">
+        GrowFeeley — Garden Planning Assistant — <a href="https://github.com/tommyfeeley/GrowFeeley">Github</a> — Tommy Feeley 2026
+    </footer>
 </body>
 </html>

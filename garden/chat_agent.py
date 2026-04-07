@@ -9,6 +9,7 @@ from anthropic import Anthropic
 from django.conf import settings
 from .models import FrostDateByZone, Plant, CompanionRelationship
 from .services import lookup_zone
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +198,6 @@ def _tool_lookup_zone(tool_input):
 
 
 def _tool_search_plants(tool_input):
-    from django.db.models import Q
     query = tool_input.get("query", "")
     plants = Plant.objects.filter(
         Q(name__icontains=query) | Q(variety__icontains=query) | Q(plant_type__icontains=query)
@@ -254,7 +254,6 @@ def _tool_get_calendar(tool_input):
 
 
 def _tool_get_companions(tool_input):
-    from django.db.models import Q
     plant_id = tool_input.get("plant_id")
 
     try:
