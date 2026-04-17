@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Cream background circle -->
+  <circle cx="32" cy="32" r="30" fill="#FAF6EC"/>
+
+  <!-- Soft border ring -->
+  <circle cx="32" cy="32" r="30" fill="none" stroke="#E5D9BD" stroke-width="2"/>
+
+  <!-- Soil mound at the bottom -->
+  <path d="M 12 46 Q 32 42 52 46 L 52 54 L 12 54 Z" fill="#8B6F47" opacity="0.85"/>
+
+  <!-- Stem -->
+  <line x1="32" y1="46" x2="32" y2="28" stroke="#486B2C" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Left leaf -->
+  <path d="M 32 32 Q 20 26 16 20 Q 22 24 32 30 Z" fill="#6B8E3D"/>
+  <path d="M 32 32 Q 22 28 18 22" stroke="#2D4A1A" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- Right leaf -->
+  <path d="M 32 28 Q 44 22 48 16 Q 42 20 32 26 Z" fill="#6B8E3D"/>
+  <path d="M 32 28 Q 42 24 46 18" stroke="#2D4A1A" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- Small center bud/sprout tip -->
+  <circle cx="32" cy="28" r="1.5" fill="#486B2C"/>
+</svg>

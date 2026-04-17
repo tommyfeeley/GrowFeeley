@@ -1,4 +1,4 @@
-# 🌱 GrowFeeley
+# GrowFeeley
 
 **AI-powered garden planning assistant with personalized planting calendars based on USDA hardiness zones.**
 
@@ -7,9 +7,6 @@
 ---
 
 ![Home page screenshot](docs/screenshot-home.png)
-<!-- SCREENSHOT 1: Full home page with a zip code entered (use 07920 or similar NJ zip).
-     Should show: hero, zone badge in nav, 4 zone stat cards, action buttons, and the
-     "Good to plant in your zone" featured plants grid below. -->
 
 ## What it does
 
@@ -46,14 +43,11 @@ The AI chat isn't a glorified ChatGPT wrapper. The view at `garden/views.py::api
 5. Claude uses the result to form its response, which may trigger more tool calls
 6. Final response + any garden state changes flow back to the client
 
-This is the same pattern used in production AI agent systems.
+This is a pattern used in production AI agent systems.
 
 ### The calendar math
 
 ![Plant detail timeline](docs/screenshot-plant-detail.png)
-<!-- SCREENSHOT 2: Plant detail page for a plant with the full timeline showing
-     (Tomato 'Sun Gold' is a good choice — it has start-indoors, transplant, and
-     harvest stages). Capture the timeline with all dots visible. -->
 
 Each `Plant` stores its growing schedule as offsets relative to last frost — e.g. `weeks_start_indoors=6`, `weeks_transplant=2`, `weeks_direct_sow=1`. When a user enters a zip code:
 
@@ -68,23 +62,15 @@ This lets the entire 102-plant library personalize automatically for every US ha
 ### AI garden assistant
 
 ![AI chat interface](docs/screenshot-chat.png)
-<!-- SCREENSHOT 3: Chat interface with a conversation showing the agent adding
-     a plant to the garden. Include a "🌱 Added [plant] to your garden" pill.
-     Best captured with zone context strip visible at top. -->
 
 ### Plant library
 
 ![Plant list grid](docs/screenshot-plant-list.png)
-<!-- SCREENSHOT 4: Plant list page showing the grid of plant cards. Try to
-     capture a mix of plant types (vegetable, fruit, herb, flower) to show
-     off the different tag colors. -->
 
 ### My Garden calendar builder
 
 ![My Garden view](docs/screenshot-my-garden.png)
-<!-- SCREENSHOT 5: My Garden page with several plants added and a built calendar
-     visible. Include the companion planting notes section if it's populated. -->
-
+![My Garden view continued](docs/screenshot-my-garden-2.png)
 ## Running locally
 
 ```bash
