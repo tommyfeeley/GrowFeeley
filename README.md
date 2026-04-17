@@ -1,4 +1,4 @@
-# 🌱 GrowFeeley
+# GrowFeeley
 
 **AI-powered garden planning assistant with personalized planting calendars based on USDA hardiness zones.**
 
