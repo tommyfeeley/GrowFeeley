@@ -1,178 +1,264 @@
 {% extends "garden/base.html" %}
-{% block title %}My Garden: GrowFeeley{% endblock %}
+{% block title %}My Garden · GrowFeeley{% endblock %}
 
 {% block extra_css %}
-.garden-controls {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    align-items: end;
-}
-.garden-controls .field { 
-    flex: 1; min-width: 200px;
- }
-.garden-controls .field label {
-    display: block;
-    font-size: 0.85rem;
-    color: var(--text-light);
-    margin-bottom: 0.3rem;
-}
-.search-wrapper { 
-    position: relative;
- }
-.search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 2px solid var(--green-mid);
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    max-height: 250px;
-    overflow-y: auto;
-    z-index: 100;
-    display: none;
-}
-.search-results.active { 
-    display: block;
- }
-.search-result-item {
-    padding: 0.5rem 0.8rem;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    border-bottom: 1px solid #f0f0f0;
-}
-.search-result-item:hover { 
-    background: var(--green-pale);
- }
-.search-result-item .tag { 
-    font-size: 0.7rem;
- }
-.search-result-item.already-added {
-    opacity: 0.5;
-    cursor: default;
-}
-.search-result-item.already-added::after {
-    content: '✓ Added';
-    font-size: 0.75rem;
-    color: var(--green-mid);
-    font-weight: 600;
-    margin-left: 0.5rem;
-}
+    /* ---------- CONTROL PANEL ---------- */
+    .garden-controls {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        align-items: end;
+    }
+    .garden-controls .field label {
+        display: block;
+        font-size: 0.76rem;
+        color: var(--ink-faded);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+    }
+    .garden-controls .field input {
+        width: 100%;
+    }
 
-.selected-plants {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    min-height: 40px;
-}
-.plant-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    background: var(--green-pale);
-    border: 1px solid var(--green-light);
-    padding: 0.3rem 0.5rem 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: var(--green-dark);
-}
-.plant-chip .remove-btn {
-    background: none;
-    border: none;
-    color: var(--text-light);
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    padding: 0 0.2rem;
-    border-radius: 50%;
-}
-.plant-chip .remove-btn:hover {
-    color: var(--danger);
-    background: rgba(198,40,40,0.1);
-}
-.empty-garden {
-    color: var(--text-light);
-    font-style: italic;
-    padding: 0.5rem 0;
-}
+    /* ---------- SEARCH TYPEAHEAD ---------- */
+    .search-wrapper {
+        position: relative;
+    }
+    .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 4px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        max-height: 260px;
+        overflow-y: auto;
+        z-index: 100;
+        display: none;
+        box-shadow: 0 4px 16px rgba(42, 36, 32, 0.06);
+    }
+    .search-results.active {
+        display: block;
+    }
+    .search-result-item {
+        padding: 0.6rem 0.9rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.92rem;
+        border-bottom: 1px solid var(--border-soft);
+    }
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+    .search-result-item:hover {
+        background: var(--cream-deep);
+    }
+    .search-result-item .tag {
+        font-size: 0.65rem;
+    }
+    .search-result-item.already-added {
+        opacity: 0.55;
+        cursor: default;
+    }
+    .search-result-item.already-added::after {
+        content: '✓ Added';
+        font-size: 0.72rem;
+        color: var(--green-mid);
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+    .search-result-item.already-added:hover {
+        background: transparent;
+    }
 
-.timeline { 
-    margin-top: 1rem;
- }
-.timeline-plant {
-    margin-bottom: 1rem;
-    padding: 1rem 1.5rem;
-}
-.timeline-plant .plant-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.8rem;
-}
-.timeline-plant .plant-header h3 { 
-    margin: 0;
- }
-.remove-from-calendar {
-    font-size: 0.8rem;
-    color: var(--text-light);
-    cursor: pointer;
-    background: none;
-    border: 1px solid #ddd;
-    padding: 0.2rem 0.6rem;
-    border-radius: 4px;
-}
-.remove-from-calendar:hover {
-    color: var(--danger);
-    border-color: var(--danger);
-}
+    /* ---------- CHIPS ---------- */
+    .plant-count {
+        font-size: 0.82rem;
+        color: var(--ink-faded);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .selected-plants {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-bottom: 1.5rem;
+        min-height: 36px;
+    }
+    .plant-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--green-pale);
+        border: 1px solid #C8D6A8;
+        padding: 0.3rem 0.4rem 0.3rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        color: var(--green-dark);
+        font-weight: 500;
+    }
+    .plant-chip .remove-btn {
+        background: none;
+        border: none;
+        color: var(--ink-soft);
+        cursor: pointer;
+        font-size: 1.15rem;
+        line-height: 1;
+        padding: 0 0.3rem;
+        border-radius: 50%;
+        transition: color 0.15s ease, background 0.15s ease;
+    }
+    .plant-chip .remove-btn:hover {
+        color: var(--danger);
+        background: rgba(176, 58, 46, 0.1);
+    }
+    .empty-garden {
+        color: var(--ink-faded);
+        font-style: italic;
+        padding: 0.4rem 0;
+        font-size: 0.92rem;
+    }
 
-.warnings { 
-    margin-top: 2rem;
- }
-.warning-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1rem;
-    margin-bottom: 0.5rem;
-    border-radius: 6px;
-}
-.warning-companion { 
-    background: #e8f5e9;
- }
-.warning-antagonist { 
-    background: #ffebee;
- }
+    /* ---------- ACTIONS ---------- */
+    .garden-actions {
+        display: flex;
+        gap: 0.6rem;
+    }
+    .btn-danger {
+        display: inline-block;
+        padding: 0.7rem 1.4rem;
+        background: transparent;
+        border: 1px solid var(--danger);
+        color: var(--danger);
+        border-radius: var(--radius);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.94rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .btn-danger:hover {
+        background: var(--danger);
+        color: var(--cream);
+    }
 
-.garden-actions {
-    display: flex;
-    gap: 0.8rem;
-}
-.btn-danger {
-    background: transparent;
-    border: 2px solid var(--danger);
-    color: var(--danger);
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    cursor: pointer;
-}
-.btn-danger:hover { 
-    background: var(--danger); color: white;
- }
+    /* ---------- CALENDAR RESULTS ---------- */
+    .garden-calendar-header {
+        margin-top: 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .garden-calendar-header h2 {
+        margin-bottom: 0.35rem;
+    }
+    .garden-calendar-header .meta {
+        color: var(--ink-soft);
+        font-size: 0.94rem;
+    }
 
-.plant-count {
-    font-size: 0.85rem;
-    color: var(--text-light);
-    margin-bottom: 0.3rem;
-}
+    .timeline-plant {
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 0.85rem;
+    }
+    .timeline-plant .plant-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.85rem;
+        gap: 0.75rem;
+    }
+    .timeline-plant .plant-header h3 {
+        margin: 0;
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 1.15rem;
+    }
+    .remove-from-calendar {
+        font-size: 0.82rem;
+        color: var(--ink-soft);
+        cursor: pointer;
+        background: transparent;
+        border: 1px solid var(--border);
+        padding: 0.3rem 0.7rem;
+        border-radius: var(--radius);
+        font-family: 'Inter', sans-serif;
+        transition: all 0.15s ease;
+    }
+    .remove-from-calendar:hover {
+        color: var(--danger);
+        border-color: var(--danger);
+    }
+
+    /* Condensed timeline for my_garden — same visual vocabulary, smaller */
+    .calendar-dates {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.35rem 1.1rem;
+        margin: 0.5rem 0 0;
+    }
+    .calendar-dates dt {
+        font-weight: 600;
+        color: var(--ink-soft);
+        font-size: 0.82rem;
+        letter-spacing: 0.02em;
+    }
+    .calendar-dates dd {
+        font-size: 0.9rem;
+        color: var(--ink);
+        font-family: 'Fraunces', Georgia, serif;
+        font-variation-settings: 'opsz' 24;
+        font-weight: 500;
+    }
+
+    /* ---------- COMPANION WARNINGS ---------- */
+    .warnings {
+        margin-top: 2.5rem;
+    }
+    .warnings h2 {
+        margin-bottom: 1rem;
+    }
+    .warning-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        padding: 0.85rem 1.1rem;
+        margin-bottom: 0.55rem;
+        border-radius: var(--radius);
+        font-size: 0.94rem;
+        line-height: 1.5;
+        border: 1px solid var(--border-soft);
+    }
+    .warning-item strong {
+        color: var(--ink);
+    }
+    .warning-companion {
+        background: var(--green-pale);
+        border-color: #C8D6A8;
+    }
+    .warning-antagonist {
+        background: var(--terracotta-soft);
+        border-color: #E8C7B5;
+    }
+
+    @media (max-width: 640px) {
+        .garden-controls {
+            grid-template-columns: 1fr;
+        }
+        .garden-actions {
+            flex-direction: column;
+        }
+        .btn-danger, .garden-actions .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
 {% endblock %}
 
 {% block content %}
@@ -207,59 +293,58 @@
 
 <div id="calendar-results">
 {% if garden_data %}
-<div class="timeline">
-    <h2>📅 Growing Calendar — Zone {{ zone_str }}</h2>
-    <p class="subtitle">
-        Last frost: {{ frost_data.last_frost_for_year|date:"F j" }} ·
-        First frost: {{ frost_data.first_frost_for_year|date:"F j" }} ·
-        Season: {{ frost_data.growing_season_days }} days
-    </p>
-
-    {% for item in garden_data %}
-    <div class="card timeline-plant" data-plant-id="{{ item.plant.pk }}">
-        <div class="plant-header">
-            <h3>{{ item.plant.display_name }}</h3>
-            <button class="remove-from-calendar" onclick="removePlant({{ item.plant.pk }})">Remove</button>
-        </div>
-
-        <dl class="calendar-dates">
-            {% if item.calendar.start_indoors %}
-            <dt>🏠 Start Indoors</dt>
-            <dd>{{ item.calendar.start_indoors|date:"F j" }}</dd>
-            {% endif %}
-
-            {% if item.calendar.transplant %}
-            <dt>🌿 Transplant</dt>
-            <dd>{{ item.calendar.transplant|date:"F j" }}</dd>
-            {% endif %}
-
-            {% if item.calendar.direct_sow %}
-            <dt>🌱 Direct Sow</dt>
-            <dd>{{ item.calendar.direct_sow|date:"F j" }}</dd>
-            {% endif %}
-
-            {% if item.calendar.harvest_start %}
-            <dt>🍅 Harvest</dt>
-            <dd>{{ item.calendar.harvest_start|date:"F j" }} — {{ item.calendar.harvest_end|date:"F j" }}</dd>
-            {% endif %}
-        </dl>
-
-        {% if item.calendar.frost_warning %}
-        <div class="frost-warning">⚠️ Harvest may extend past first frost — plan for frost protection.</div>
-        {% endif %}
+<div class="garden-calendar-header">
+    <h2>Growing Calendar · Zone {{ zone_str }}</h2>
+    <div class="meta">
+        Last frost {{ frost_data.last_frost_for_year|date:"F j" }} ·
+        First frost {{ frost_data.first_frost_for_year|date:"F j" }} ·
+        {{ frost_data.growing_season_days }}-day season
     </div>
-    {% endfor %}
 </div>
+
+{% for item in garden_data %}
+<div class="card timeline-plant" data-plant-id="{{ item.plant.pk }}">
+    <div class="plant-header">
+        <h3>{{ item.plant.display_name }}</h3>
+        <button class="remove-from-calendar" onclick="removePlant({{ item.plant.pk }})">Remove</button>
+    </div>
+
+    <dl class="calendar-dates">
+        {% if item.calendar.start_indoors %}
+        <dt> Start Indoors</dt>
+        <dd>{{ item.calendar.start_indoors|date:"F j" }}</dd>
+        {% endif %}
+
+        {% if item.calendar.direct_sow %}
+        <dt> Direct Sow</dt>
+        <dd>{{ item.calendar.direct_sow|date:"F j" }}</dd>
+        {% endif %}
+
+        {% if item.calendar.transplant %}
+        <dt> Transplant</dt>
+        <dd>{{ item.calendar.transplant|date:"F j" }}</dd>
+        {% endif %}
+
+        {% if item.calendar.harvest_start %}
+        <dt> Harvest</dt>
+        <dd>{{ item.calendar.harvest_start|date:"F j" }} — {{ item.calendar.harvest_end|date:"F j" }}</dd>
+        {% endif %}
+    </dl>
+
+    {% if item.calendar.frost_warning %}
+    <div class="frost-warning"> Harvest may extend past first frost — plan for frost protection.</div>
+    {% endif %}
+</div>
+{% endfor %}
 {% endif %}
 
 {% if companion_warnings %}
 <div class="warnings">
-    <h2>🌻 Companion Planting Notes</h2>
+    <h2>Companion Planting Notes</h2>
     {% for rel in companion_warnings %}
     <div class="warning-item warning-{{ rel.relationship }}">
-        {% if rel.relationship == 'companion' %}👍{% else %}⚠️{% endif %}
-        <strong>{{ rel.plant_a.name }} & {{ rel.plant_b.name }}</strong>
-        — {{ rel.reason }}
+        <span>{% if rel.relationship == 'companion' %}✓{% else %}⚠️{% endif %}</span>
+        <div><strong>{{ rel.plant_a.name }} &amp; {{ rel.plant_b.name }}</strong> — {{ rel.reason }}</div>
     </div>
     {% endfor %}
 </div>
@@ -364,7 +449,7 @@ function doSearch(q) {
         .then(function(data) {
             const added = getPlants().map(function(p) { return p.id; });
             if (data.results.length === 0) {
-                resultsDiv.innerHTML = '<div style="padding:0.6rem 0.8rem;color:var(--text-light);font-size:0.9rem;">No plants found</div>';
+                resultsDiv.innerHTML = '<div style="padding:0.7rem 0.9rem;color:var(--ink-faded);font-size:0.9rem;">No plants found</div>';
             } else {
                 resultsDiv.innerHTML = data.results.map(function(p) {
                     var isAdded = added.indexOf(p.id) !== -1;
@@ -421,13 +506,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Sync URL plants to localStorage (URL is source of truth after Build Calendar)
     var urlPlants = new URLSearchParams(window.location.search).getAll('plants');
     if (urlPlants.length > 0) {
-        // The server has rendered calendar data — make sure localStorage matches.
-        // We need names from localStorage or from the rendered page.
         var existingPlants = getPlants();
         var existingMap = {};
         existingPlants.forEach(function(p) { existingMap[p.id] = p.name; });
 
-        // Also grab names from rendered timeline cards
         document.querySelectorAll('.timeline-plant').forEach(function(card) {
             var id = parseInt(card.getAttribute('data-plant-id'));
             var h3 = card.querySelector('h3');

@@ -1,95 +1,251 @@
 {% extends "garden/base.html" %}
-{% block title %}GrowFeeley: Know When to Grow{% endblock %}
+{% block title %}GrowFeeley — Know When to Grow{% endblock %}
 
 {% block extra_css %}
     .hero {
         text-align: center;
-        padding: 3rem 1rem;
+        padding: 3.5rem 1rem 2.5rem;
     }
     .hero h1 {
-        font-size: 2.5rem;
-        margin-bottom: 0.3rem;
+        font-size: clamp(2.4rem, 5vw, 3.4rem);
+        margin-bottom: 0.6rem;
+        letter-spacing: -0.02em;
+    }
+    .hero h1 .accent {
+        color: var(--green-mid);
+        font-style: italic;
+        font-weight: 500;
     }
     .hero .subtitle {
         font-size: 1.1rem;
-        margin-bottom: 2rem;
+        max-width: 520px;
+        margin: 0 auto 2rem;
+        color: var(--ink-soft);
     }
     .zip-form {
         display: flex;
         justify-content: center;
         gap: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-    .zip-form input {
-        width: 160px;
-        text-align: center;
-        font-size: 1.1rem;
-    }
-    .zone-result {
-        max-width: 450px;
-        margin: 0 auto;
-        text-align: left;
-    }
-    .zone-result h2 {
-        text-align: center;
         margin-bottom: 1rem;
     }
-    .zone-stats {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    .zone-stat {
+    .zip-form input {
+        width: 180px;
         text-align: center;
-        padding: 1rem;
-        background: var(--green-pale);
-        border-radius: 8px;
-    }
-    .zone-stat .label {
-        font-size: 0.8rem;
-        color: var(--text-light);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .zone-stat .value {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: var(--green-dark);
-    }
-    .zone-actions {
-        display: flex;
-        gap: 0.8rem;
-        justify-content: center;
+        font-size: 1.05rem;
+        letter-spacing: 0.15em;
     }
     .not-found {
         color: var(--danger);
         text-align: center;
         margin-top: 1rem;
+        font-size: 0.95rem;
+    }
+
+    /* ---------- ZONE RESULT ---------- */
+    .zone-result {
+        max-width: 720px;
+        margin: 1.5rem auto 0;
+        text-align: left;
+    }
+    .zone-result-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .zone-result-header h2 {
+        font-size: 1.9rem;
+        margin-bottom: 0.25rem;
+    }
+    .zone-result-header .zip-label {
+        color: var(--ink-soft);
+        font-size: 0.95rem;
+    }
+    .zone-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.75rem;
+    }
+    .zone-stat {
+        padding: 1.1rem 1.25rem;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+    }
+    .zone-stat .label {
+        font-size: 0.74rem;
+        color: var(--ink-soft);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+    }
+    .zone-stat .value {
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 1.45rem;
+        font-weight: 600;
+        color: var(--ink);
+        font-variation-settings: 'opsz' 36;
+        line-height: 1.1;
+    }
+    .zone-stat.accent {
+        background: var(--green-pale);
+        border-color: #C8D6A8;
+    }
+    .zone-stat.accent .value {
+        color: var(--green-dark);
+    }
+    .zone-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* ---------- HOW IT WORKS ---------- */
+    .how-it-works {
+        margin-top: 4rem;
+        padding-top: 3rem;
+        border-top: 1px solid var(--border-soft);
+    }
+    .how-it-works h2 {
+        text-align: center;
+        font-size: 1.6rem;
+        margin-bottom: 2rem;
+    }
+    .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+    .step {
+        padding: 1.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-lg);
+    }
+    .step-num {
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--terracotta);
+        font-variation-settings: 'opsz' 72;
+        line-height: 1;
+        margin-bottom: 0.75rem;
+    }
+    .step h3 {
+        font-size: 1.05rem;
+        margin-bottom: 0.4rem;
+        color: var(--ink);
+    }
+    .step p {
+        color: var(--ink-soft);
+        font-size: 0.94rem;
+        margin: 0;
+    }
+
+    /* ---------- FEATURED PLANTS ---------- */
+    .featured-section {
+        margin-top: 3.5rem;
+        padding-top: 2.5rem;
+        border-top: 1px solid var(--border-soft);
+    }
+    .featured-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .featured-header h2 {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    .featured-header a {
+        color: var(--green-mid);
+        font-size: 0.92rem;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .featured-header a:hover {
+        text-decoration: underline;
+        text-decoration-color: var(--sand-deep);
+    }
+    .plant-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+    .plant-tile {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-lg);
+        padding: 1.1rem 1.2rem;
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.15s ease, transform 0.15s ease;
+        display: block;
+    }
+    .plant-tile:hover {
+        border-color: var(--green-leaf);
+        transform: translateY(-1px);
+    }
+    .plant-tile-name {
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.5rem;
+        font-variation-settings: 'opsz' 24;
+    }
+    .plant-tile-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.82rem;
+        color: var(--ink-soft);
+    }
+    .plant-tile-meta .tag {
+        font-size: 0.65rem;
+        padding: 0.15rem 0.55rem;
+    }
+    .empty-featured {
+        text-align: center;
+        color: var(--ink-soft);
+        padding: 2rem;
+        font-size: 0.95rem;
+    }
+
+    @media (max-width: 640px) {
+        .steps { grid-template-columns: 1fr; }
+        .zone-stats { grid-template-columns: 1fr; }
     }
 {% endblock %}
 
 {% block content %}
 <div class="hero">
-    <h1>🌱 Know When to Grow</h1>
-    <p class="subtitle">Enter your zip code to get personalized planting dates for your area.</p>
+    <h1>Know When to <span class="accent">Grow</span></h1>
+    <p class="subtitle">Personalized planting dates for every vegetable, herb, and flower — tailored to your USDA hardiness zone and local frost dates.</p>
 
     <div class="zip-form">
-        <input type="text" id="zip-input" placeholder="Enter zip code" maxlength="5"
-               value="{{ zip_code|default:'' }}" autofocus>
+        <input type="text" id="zip-input" placeholder="Zip code" maxlength="5"
+               value="{{ zip_code|default:'' }}" autofocus inputmode="numeric">
         <button class="btn" onclick="lookupZone()">Find My Zone</button>
     </div>
 
     <div id="zone-result">
     {% if frost_data %}
-        <div class="zone-result card">
-            <h2>Zone {{ zone_str }}</h2>
+        <div class="zone-result">
+            <div class="zone-result-header">
+                <h2>Zone {{ zone_str }}</h2>
+                <div class="zip-label">{{ zip_code }}</div>
+            </div>
             <div class="zone-stats">
-                <div class="zone-stat">
+                <div class="zone-stat accent">
                     <div class="label">Last Spring Frost</div>
                     <div class="value">{{ frost_data.last_frost_for_year|date:"M j" }}</div>
                 </div>
-                <div class="zone-stat">
+                <div class="zone-stat accent">
                     <div class="label">First Fall Frost</div>
                     <div class="value">{{ frost_data.first_frost_for_year|date:"M j" }}</div>
                 </div>
@@ -98,12 +254,15 @@
                     <div class="value">{{ frost_data.growing_season_days }} days</div>
                 </div>
                 <div class="zone-stat">
-                    <div class="label">Zip Code</div>
-                    <div class="value">{{ zip_code }}</div>
+                    <div class="label">Frost-Free Window</div>
+                    <div class="value">
+                        {{ frost_data.last_frost_for_year|date:"M" }}–{{ frost_data.first_frost_for_year|date:"M" }}
+                    </div>
                 </div>
             </div>
             <div class="zone-actions">
                 <a href="{% url 'garden:plant_list' %}?zip={{ zip_code }}" class="btn">Browse Plants</a>
+                <a href="{% url 'garden:chat' %}?zip={{ zip_code }}" class="btn btn-accent">Ask the AI Planner</a>
                 <a href="{% url 'garden:my_garden' %}?zip={{ zip_code }}" class="btn btn-outline">My Garden</a>
             </div>
         </div>
@@ -112,6 +271,56 @@
     {% endif %}
     </div>
 </div>
+
+{% if frost_data %}
+    {# --------- FEATURED PLANTS (shown when zip is entered) --------- #}
+    <section class="featured-section">
+        <div class="featured-header">
+            <h2>Good to plant in your zone</h2>
+            <a href="{% url 'garden:plant_list' %}?zip={{ zip_code }}">View all plants →</a>
+        </div>
+
+        {% if featured_plants %}
+            <div class="plant-grid">
+                {% for plant in featured_plants %}
+                    <a href="{% url 'garden:plant_detail' plant.slug %}?zip={{ zip_code }}" class="plant-tile">
+                        <div class="plant-tile-name">{{ plant.name }}</div>
+                       <div class="plant-tile-meta">
+                        <span class="tag tag-{{ plant.plant_type }}">{{ plant.get_plant_type_display }}</span>
+                        <span>{{ plant.days_to_maturity_min }}–{{ plant.days_to_maturity_max }} days</span>
+                    </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-featured">
+                Head to <a href="{% url 'garden:plant_list' %}?zip={{ zip_code }}">Browse Plants</a> to see what grows in your zone.
+            </div>
+        {% endif %}
+    </section>
+{% else %}
+    {# --------- HOW IT WORKS (shown when no zip) --------- #}
+    <section class="how-it-works">
+        <h2>How it works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Enter your zip</h3>
+                <p>We pull your USDA hardiness zone and local frost dates from a public plant-hardiness API.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>See your calendar</h3>
+                <p>Every plant gets personalized sowing, transplant, and harvest windows based on your frost dates.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Ask the AI planner</h3>
+                <p>Chat with a garden assistant that knows your zone and can plan, add, and remove plants for you.</p>
+            </div>
+        </div>
+    </section>
+{% endif %}
 
 {% endblock %}
 
