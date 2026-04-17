@@ -2,7 +2,7 @@
 
 **AI-powered garden planning assistant with personalized planting calendars based on USDA hardiness zones.**
 
-🔗 **Live:** [growfeeley.pythonanywhere.com](https://growfeeley.pythonanywhere.com)
+**Live:** [growfeeley.pythonanywhere.com](https://growfeeley.pythonanywhere.com)
 
 ---
 
