@@ -48,10 +48,6 @@ This is a pattern used in production AI agent systems.
 ### The calendar math
 
 ![Plant detail timeline](docs/screenshot-plant-detail.png)
-<<<<<<< HEAD
-=======
-
->>>>>>> fd0f3a1934a0eb4c81e50f42e0bfa6867cf1dcca
 
 Each `Plant` stores its growing schedule as offsets relative to last frost — e.g. `weeks_start_indoors=6`, `weeks_transplant=2`, `weeks_direct_sow=1`. When a user enters a zip code:
 
@@ -70,24 +66,16 @@ This lets the entire 102-plant library personalize automatically for every US ha
 ### Plant library
 
 ![Plant list grid](docs/screenshot-plant-list.png)
-<<<<<<< HEAD
-=======
-
->>>>>>> fd0f3a1934a0eb4c81e50f42e0bfa6867cf1dcca
 
 ### My Garden calendar builder
 
 ![My Garden view](docs/screenshot-my-garden.png)
-<<<<<<< HEAD
-![My Garden view continued](docs/screenshot-my-garden-2.png)
-=======
 
 ![My Garden view contd](docs/screenshot-my-garden-2.png)
 
 
 
 
->>>>>>> fd0f3a1934a0eb4c81e50f42e0bfa6867cf1dcca
 ## Running locally
 
 ```bash
