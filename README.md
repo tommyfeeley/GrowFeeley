@@ -7,10 +7,6 @@
 ---
 
 ![Home page screenshot](docs/screenshot-home.png)
-<<<<<<< HEAD
-=======
-
->>>>>>> fd0f3a1934a0eb4c81e50f42e0bfa6867cf1dcca
 
 ## What it does
 
