@@ -128,3 +128,4 @@ Things I might add if I keep building this:
 ## About
 
 Built by [Tommy Feeley](https://linkedin.com/in/tommy-feeley). Portfolio site: [tommyfeeley.github.io/resume](https://tommyfeeley.github.io/resume). GitHub: [@tommyfeeley](https://github.com/tommyfeeley).
+Sources/Thanks to: Rutgers Cooperative Extension, Penn State Extension, UMass Extension, and Cornell's extension. 
